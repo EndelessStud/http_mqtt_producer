@@ -1,0 +1,12 @@
+#!/bin/bash
+
+service postgresql start
+psql -q -U postgres -c "CREATE USER myuser WITH PASSWORD '33333333';" 
+psql -q -U postgres -c "CREATE DATABASE mydb;" 
+psql -q -U postgres -c "select pg_reload_conf();"  
+psql -q -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;" 
+psql -q -U postgres -d mydb -c "CREATE TABLE control (id SERIAL PRIMARY KEY, temp SMALLINT, datetime timestamp with time zone);" 
+psql -q -U postgres -d mydb -c "ALTER TABLE control ALTER COLUMN datetime SET DEFAULT CURRENT_TIMESTAMP;"  
+psql -q -U postgres -d mydb -c "GRANT ALL PRIVILEGES ON TABLE control TO myuser;"
+psql -q -U postgres -d mydb -c "GRANT USAGE, SELECT ON SEQUENCE control_id_seq TO myuser;" 
+./Producer
